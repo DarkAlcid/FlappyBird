@@ -1,13 +1,22 @@
 [NEAT]
+## What function we use to determine the best (min, max or mean)
 fitness_criterion     = max
+## What fitness level we need before we terminate the program
+## If it passed this threshold, no generation are generated anymore
 fitness_threshold     = 100
-pop_size              = 100
+## Number of individuals in a population
+pop_size              = 20
+## Create a random new population when all species become extinct due to stagnation
 reset_on_extinction   = False
 
 [DefaultGenome]
+## Nodes are Input/Output and Genes are connections between nodes
+
 # node activation options
 activation_default      = tanh
+## Choose a mutation rate for changing the activation function
 activation_mutate_rate  = 0.0
+## List of activation function if it mutates
 activation_options      = tanh
 
 # node aggregation options
@@ -15,6 +24,7 @@ aggregation_default     = sum
 aggregation_mutate_rate = 0.0
 aggregation_options     = sum
 
+## Initial connections we have and how likely it will change
 # node bias options
 bias_init_mean          = 0.0
 bias_init_stdev         = 1.0
@@ -32,10 +42,12 @@ compatibility_weight_coefficient   = 0.5
 conn_add_prob           = 0.5
 conn_delete_prob        = 0.5
 
+## Set enable/disable rates connection
 # connection enable options
 enabled_default         = True
 enabled_mutate_rate     = 0.01
 
+## Type of neural network
 feed_forward            = True
 initial_connection      = full
 
@@ -43,6 +55,7 @@ initial_connection      = full
 node_add_prob           = 0.2
 node_delete_prob        = 0.2
 
+## Setting the default amount of inputs and output neurons
 # network parameters
 num_hidden              = 0
 num_inputs              = 3
@@ -70,7 +83,9 @@ weight_replace_rate     = 0.1
 compatibility_threshold = 3.0
 
 [DefaultStagnation]
+## What fitness function we take in our species
 species_fitness_func = max
+## How many generation we have without increasing fitness 
 max_stagnation       = 20
 species_elitism      = 2
 

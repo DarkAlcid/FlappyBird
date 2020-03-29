@@ -172,19 +172,31 @@ def draw_window(win, birds, pipes, base, score, gen):
         bird.draw(win)
     pygame.display.update()
 
+# Fitness function (in our case, how far a bird moves in a game)
+# Always make sure that you have genomes and config as parameters
 def main(genomes, config):
 
     global GEN 
     GEN += 1
+
+    # Variables to keep tracks of what is happening
+    # Keep track of neural network of each birds
     nets = []
+    # Keep track of genome so we can change the fitness function  
     ge = []
+
     birds = []
 
-    # genomes is a tuple object (genome_id, genome_object) 
+    
+    # Set a neural network for this genome
+    # Genomes is a tuple object (genome_id, genome_object) 
     for _, g in genomes: 
+        # Create a neural network
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
+        # Create a bird
         birds.append(Bird(230,350))
+        # Set the fitness and append the genome to the list
         g.fitness = 0
         ge.append(g)
 
@@ -202,6 +214,7 @@ def main(genomes, config):
                 pygame.quit()
                 quit()
 
+        # Check what pipe we are looking at
         pipe_ind = 0
         if len(birds) > 0:
             if len(pipes) > 1 and birds[0].x > pipes[0].x + pipes[0].PIPE_TOP.get_width():
@@ -212,10 +225,12 @@ def main(genomes, config):
 
         for x, bird in enumerate(birds):
             bird.move()
+            # Give some fitness rewards for surviving 
             ge[x].fitness += 0.1
 
+            # Activate our neural network
             output = nets[x].activate((bird.y, abs(bird.y - pipes[pipe_ind].height), abs(bird.y - pipes[pipe_ind].bottom)))
-
+            # Output is a list of output neurons 
             if output[0] > 0.5:
                 bird.jump()
 
@@ -223,12 +238,15 @@ def main(genomes, config):
         add_pipe = False
         for pipe in pipes :
             for x, bird in enumerate(birds) :
+                # Check collision with bird and modify the fitness function
                 if pipe.collide(bird):
                     ge[x].fitness -= 1
+                    # Remove bird that colllided
                     birds.pop(x)
                     nets.pop(x)
                     ge.pop(x)
 
+                # Check if the pipe is passed
                 if not pipe.passed and pipe.x < bird.x:
                     pipe.passed = True
                     add_pipe = True
@@ -237,8 +255,10 @@ def main(genomes, config):
                 rem.append(pipe) 
 
             pipe.move()
+        # If the pipe is passed    
         if add_pipe :
             score += 1
+            # Increase the fitness function 
             for g in ge:
                 g.fitness += 5
             pipes.append(Pipe(600))
@@ -247,6 +267,7 @@ def main(genomes, config):
             pipes.remove(r)
 
         for x,bird in enumerate(birds) :
+            # Check if bird touch the ground or go over the top of the screen
             if bird.y + bird.img.get_height() >= 630 or bird.y < 0:
                 birds.pop(x)
                 nets.pop(x)
@@ -256,13 +277,16 @@ def main(genomes, config):
         draw_window(win, birds, pipes, base, score, GEN)
     
 
+# Minimum Settings for NEAT
 def run(config_path):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
             neat.DefaultSpeciesSet, neat.DefaultStagnation,
             config_path)
 
+    # Create population based on the config we set
     p = neat.Population(config)
 
+    # Give some outputs / information about each generation
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
