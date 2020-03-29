@@ -3,7 +3,7 @@ import neat
 import time
 import os 
 import random
-
+import pickle
 
 WIN_WIDTH = 500
 WIN_HEIGHT = 700
@@ -279,7 +279,10 @@ def main(genomes, config):
 
         base.move()
         draw_window(win, birds, pipes, base, score, GEN)
-    
+
+        if score > 20:
+            pickle.dump(nets[0], open('best.pickle','wb'))
+            break
 
 # Minimum Settings for NEAT
 def run(config_path):
@@ -296,6 +299,8 @@ def run(config_path):
     p.add_reporter(stats)
 
     winner = p.run(main,50)
+
+    print('\nBest genome:\n{!s}'.format(winner))
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
